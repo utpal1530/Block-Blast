@@ -1,0 +1,147 @@
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
+  user-select: none;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #3a4a7a;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#game {
+  width: 360px;
+  background: #2a3657;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0 8px;
+}
+
+.score-panel {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 18px;
+  color: #f5c542;
+}
+
+.score-panel .icon {
+  font-size: 22px;
+  margin-right: 6px;
+}
+
+#current-score {
+  color: white;
+  font-size: 28px;
+  font-weight: 900;
+  text-shadow: 0 0 8px #a64ca6;
+  display: flex;
+  align-items: center;
+}
+
+#current-score .icon {
+  font-size: 32px;
+  margin-right: 8px;
+}
+
+#settings {
+  font-size: 28px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s ease;
+}
+
+#settings:hover {
+  transform: rotate(20deg);
+}
+
+main {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#board {
+  width: 304px; /* 9 blocks * 32px + 8 gaps * 2px */
+  height: 304px;
+  background: #1f2740;
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+  gap: 2px;
+  border-radius: 8px;
+  box-shadow: inset 0 0 10px #000000aa;
+  margin-bottom: 16px;
+}
+
+.block {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(145deg, #7b4dbb, #5a3a8a);
+  border-radius: 4px;
+  box-shadow:
+    inset 2px 2px 5px #a67aff,
+    inset -2px -2px 5px #4a2e7a,
+    2px 2px 5px #3a2a5a;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.block.empty {
+  background: transparent;
+  box-shadow: none;
+  cursor: default;
+}
+
+#blasts-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  gap: 12px;
+}
+
+.blast {
+  display: grid;
+  grid-template-columns: repeat(5, 14px);
+  grid-template-rows: repeat(5, 14px);
+  gap: 1px;
+  background: #1f2740;
+  padding: 4px;
+  border-radius: 8px;
+  box-shadow: inset 0 0 10px #000000aa;
+  cursor: pointer;
+  user-select: none;
+}
+
+.blast .block {
+  cursor: default;
+}
+
+.blast .block.empty {
+  background: transparent;
+  box-shadow: none;
+}
+
+.blast.selected {
+  box-shadow: 0 0 15px #a64ca6;
+}

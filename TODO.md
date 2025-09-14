@@ -1,0 +1,8 @@
+- [x] Update index.html: change id="shapes-container" to id="blasts-container"
+- [x] Update script.js: rename shapes to blasts, shape to blast, etc.
+- [x] Change SHAPES to BLASTS with three options: single, horizontal 2, vertical 2
+- [x] Modify initBoard to randomly fill 30% of the board
+- [x] Modify clearFullLines to return number of lines cleared
+- [x] Update scoring in board click handler to add 50 per cleared line
+- [x] Rename functions: generateShapes to generateBlasts, renderShapes to renderBlasts, etc.
+- [x] Test the game by running it
