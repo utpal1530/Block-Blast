@@ -190,8 +190,9 @@ function renderBlasts() {
       const x = touch.clientX - rect.left;
       const y = touch.clientY - rect.top;
 
-      const col = Math.floor(x / (BLOCK_SIZE + 2)); // 2 is gap
-      const row = Math.floor(y / (BLOCK_SIZE + 2));
+      const blockSize = getBlockSize();
+      const col = Math.floor(x / (blockSize + 2)); // 2 is gap
+      const row = Math.floor(y / (blockSize + 2));
 
       // Center the blast on the drop position (blast is 5x5, center at (2,2))
       const blastRow = row - 2;
@@ -199,9 +200,10 @@ function renderBlasts() {
 
       const blast = blasts[index];
 
+      const bestPos = findBestPlacement(blast.matrix, blastRow, blastCol);
       let placed = false;
-      if (canPlaceBlast(blast.matrix, blastRow, blastCol)) {
-        placeBlast(blast.matrix, blastRow, blastCol);
+      if (bestPos) {
+        placeBlast(blast.matrix, bestPos.row, bestPos.col);
         placed = true;
       }
 
@@ -249,6 +251,25 @@ function canPlaceBlast(blastMatrix, row, col) {
     }
   }
   return true;
+}
+
+// Find the best position to place the blast near the given row, col
+function findBestPlacement(blastMatrix, centerRow, centerCol) {
+  // Try positions in order of increasing distance from center
+  const maxOffset = 4; // Allow some offset
+  for (let offset = 0; offset <= maxOffset; offset++) {
+    for (let dr = -offset; dr <= offset; dr++) {
+      for (let dc = -offset; dc <= offset; dc++) {
+        if (Math.abs(dr) + Math.abs(dc) !== offset) continue; // Manhattan distance
+        const r = centerRow + dr;
+        const c = centerCol + dc;
+        if (canPlaceBlast(blastMatrix, r, c)) {
+          return { row: r, col: c };
+        }
+      }
+    }
+  }
+  return null; // No valid position found
 }
 
 // Place blast on board at position (row, col)
@@ -351,9 +372,10 @@ boardElement.addEventListener('drop', (e) => {
 
   const blast = blasts[index];
 
+  const bestPos = findBestPlacement(blast.matrix, blastRow, blastCol);
   let placed = false;
-  if (canPlaceBlast(blast.matrix, blastRow, blastCol)) {
-    placeBlast(blast.matrix, blastRow, blastCol);
+  if (bestPos) {
+    placeBlast(blast.matrix, bestPos.row, bestPos.col);
     placed = true;
   }
 
