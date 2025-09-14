@@ -134,7 +134,6 @@ function renderBlasts() {
   blasts.forEach((blast, index) => {
     const blastDiv = document.createElement('div');
     blastDiv.classList.add('blast');
-    blastDiv.draggable = true;
     blastDiv.dataset.index = index;
 
     for (let r = 0; r < SHAPE_GRID_SIZE; r++) {
@@ -148,8 +147,84 @@ function renderBlasts() {
       }
     }
 
+    // Add dragstart event for mouse drag
+    blastDiv.draggable = true;
     blastDiv.addEventListener('dragstart', (e) => {
       e.dataTransfer.setData('text/plain', index);
+    });
+
+    // Touch event handlers for touch devices
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isDragging = false;
+
+    blastDiv.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      isDragging = true;
+      blastDiv.classList.add('selected');
+    });
+
+    blastDiv.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      const moveX = touch.clientX;
+      const moveY = touch.clientY;
+      blastDiv.style.position = 'fixed';
+      blastDiv.style.left = (moveX - 40) + 'px'; // offset to center finger
+      blastDiv.style.top = (moveY - 40) + 'px';
+      blastDiv.style.zIndex = 1000;
+    });
+
+    blastDiv.addEventListener('touchend', (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      isDragging = false;
+      blastDiv.classList.remove('selected');
+
+      // Get drop position relative to board
+      const touch = e.changedTouches[0];
+      const rect = boardElement.getBoundingClientRect();
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+
+      const col = Math.floor(x / (BLOCK_SIZE + 2)); // 2 is gap
+      const row = Math.floor(y / (BLOCK_SIZE + 2));
+
+      // Center the blast on the drop position (blast is 5x5, center at (2,2))
+      const blastRow = row - 2;
+      const blastCol = col - 2;
+
+      const blast = blasts[index];
+
+      let placed = false;
+      if (canPlaceBlast(blast.matrix, blastRow, blastCol)) {
+        placeBlast(blast.matrix, blastRow, blastCol);
+        placed = true;
+      }
+
+      if (placed) {
+        blasts.splice(index, 1);
+        generateNewBlast();
+        const cleared = clearFullLines();
+        updateScore(cleared * 50);
+        renderBoard();
+
+        if (!canPlaceAnyBlast()) {
+          alert('Game Over! Your score: ' + currentScore);
+          resetGame();
+        }
+      }
+
+      renderBlasts();
+
+      // Reset blastDiv style
+      blastDiv.style.position = '';
+      blastDiv.style.left = '';
+      blastDiv.style.top = '';
+      blastDiv.style.zIndex = '';
     });
 
     blastsContainer.appendChild(blastDiv);
@@ -245,6 +320,12 @@ function canPlaceAnyBlast() {
   return false;
 }
 
+// Get the current block size based on board dimensions
+function getBlockSize() {
+  const rect = boardElement.getBoundingClientRect();
+  return (rect.width - 8 * 2) / 9; // 8 gaps of 2px each
+}
+
 // Handle drag and drop to place blast freely (allow partial placement)
 boardElement.addEventListener('dragover', (e) => {
   e.preventDefault(); // Allow drop
@@ -260,8 +341,9 @@ boardElement.addEventListener('drop', (e) => {
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
 
-  const col = Math.floor(x / (BLOCK_SIZE + 2)); // 2 is gap
-  const row = Math.floor(y / (BLOCK_SIZE + 2));
+  const blockSize = getBlockSize();
+  const col = Math.floor(x / (blockSize + 2)); // 2 is gap
+  const row = Math.floor(y / (blockSize + 2));
 
   // Center the blast on the drop position (blast is 5x5, center at (2,2))
   const blastRow = row - 2;
